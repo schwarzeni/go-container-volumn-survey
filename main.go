@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"go-volumn/aufs"
 	"log"
 	"os"
 	"os/exec"
@@ -9,6 +10,9 @@ import (
 )
 
 func main() {
+	rootURL := "/tmp/aufs"
+	mntURL := "/tmp/aufs/mnt"
+	defer aufs.DeleteWorkSpace(rootURL, mntURL)
 	if os.Args[0] == "/proc/self/exe" { // child process
 		childProcess()
 		return
@@ -23,7 +27,11 @@ func main() {
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	cmd.Dir = "/root/busybox"
+
+	cmd.Dir = mntURL
+	if err = aufs.NewWorkSpace(rootURL, mntURL); err != nil {
+		log.Fatal(err)
+	}
 
 	if err = cmd.Start(); err != nil {
 		log.Fatalf("cmd.Start() failed: %v", err)
