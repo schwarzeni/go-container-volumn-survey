@@ -12,7 +12,8 @@ import (
 func main() {
 	rootURL := "/root/workplace_go/go-volumn-dev"
 	mntURL := "/root/workplace_go/go-volumn-dev/mnt"
-	defer aufs.DeleteWorkSpace(rootURL, mntURL)
+	volumeURLs := "/root/workplace_go/go-volumn-dev/my-volume:mv"
+	defer aufs.DeleteWorkSpace(rootURL, mntURL, volumeURLs)
 	if os.Args[0] == "/proc/self/exe" { // child process
 		childProcess()
 		return
@@ -29,7 +30,8 @@ func main() {
 	cmd.Stderr = os.Stderr
 
 	cmd.Dir = mntURL
-	if err = aufs.NewWorkSpace(rootURL, mntURL); err != nil {
+	// TODO: edit here
+	if err = aufs.NewWorkSpace(rootURL, mntURL, volumeURLs); err != nil {
 		log.Fatal(err)
 	}
 

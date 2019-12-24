@@ -2,25 +2,37 @@ package aufs
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"path"
 )
 
 // NewWorkSpace 创建新的容器层
-func NewWorkSpace(rootURL string, mntURL string) (err error) {
+func NewWorkSpace(rootURL string, mntURL string, volume string) (err error) {
 	if err = createReadOnlyLayer(rootURL); err != nil {
-		return
+		goto ERR
 	}
 	if err = createWriteLayer(rootURL); err != nil {
-		deleteWriteLayer(rootURL)
-		return
+		goto ERR
 	}
 	if err = createMountPoint(rootURL, mntURL); err != nil {
-		deleteWriteLayer(rootURL)
-		deleteMountPoint(rootURL, mntURL)
-		return
+		goto ERR
 	}
+	if len(volume) != 0 {
+		var volumeURLs []string
+		if volumeURLs, err = volumeURLExtract(volume); err != nil {
+			goto ERR
+		}
+		if err = mountVolume(rootURL, mntURL, volumeURLs); err != nil {
+			goto ERR
+		}
+		log.Printf("%s mount on %s in container", volumeURLs[0], volumeURLs[1])
+	}
+	return
+ERR:
+	deleteWriteLayer(rootURL)
+	deleteMountPoint(rootURL, mntURL)
 	return
 }
 

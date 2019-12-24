@@ -8,9 +8,26 @@ import (
 )
 
 // DeleteWorkSpace 删除容器层
-func DeleteWorkSpace(rootURL string, mntURL string) {
-	_ = deleteMountPoint(rootURL, mntURL)
-	_ = deleteWriteLayer(rootURL)
+func DeleteWorkSpace(rootURL string, mntURL string, volume string) (err error) {
+	if len(volume) != 0 {
+		var volumeURLs []string
+		if volumeURLs, err = volumeURLExtract(volume); err != nil {
+			goto ERR
+		}
+		if err = umountVolume(rootURL, mntURL, volumeURLs); err != nil {
+			goto ERR
+		}
+	}
+	if err = deleteMountPoint(rootURL, mntURL); err != nil {
+		goto ERR
+	}
+	if err = deleteWriteLayer(rootURL); err != nil {
+		goto ERR
+	}
+	return
+ERR:
+	// TODO: handle error here
+	return
 }
 
 // deleteMountPoint 删除挂载点
