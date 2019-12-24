@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"go-volumn/aufs"
 	"log"
@@ -9,10 +10,20 @@ import (
 	"syscall"
 )
 
+var (
+	rootURLFlag    = flag.String("r", "build", "程序执行的根目录")
+	mntURLFlag     = flag.String("mnt", "build/mnt", "aufs最终挂载的目录")
+	volumeURLsFlag = flag.String("m", "", "用户自定义的挂载目录")
+)
+
+func init() {
+	flag.Parse()
+}
+
 func main() {
-	rootURL := "/root/workplace_go/go-volumn-dev"
-	mntURL := "/root/workplace_go/go-volumn-dev/mnt"
-	volumeURLs := "/root/workplace_go/go-volumn-dev/my-volume:mv"
+	rootURL := *rootURLFlag
+	mntURL := *mntURLFlag
+	volumeURLs := *volumeURLsFlag
 	defer aufs.DeleteWorkSpace(rootURL, mntURL, volumeURLs)
 	if os.Args[0] == "/proc/self/exe" { // child process
 		childProcess()
@@ -30,7 +41,6 @@ func main() {
 	cmd.Stderr = os.Stderr
 
 	cmd.Dir = mntURL
-	// TODO: edit here
 	if err = aufs.NewWorkSpace(rootURL, mntURL, volumeURLs); err != nil {
 		log.Fatal(err)
 	}
