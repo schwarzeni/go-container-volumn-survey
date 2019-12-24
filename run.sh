@@ -1,5 +1,7 @@
 #!/bin/sh
 
+[ ! -d "build" ] && mkdir build
+
 # build project
 go build -o build/gv .
 
