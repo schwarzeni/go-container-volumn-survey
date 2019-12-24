@@ -10,8 +10,8 @@ import (
 )
 
 func main() {
-	rootURL := "/tmp/aufs"
-	mntURL := "/tmp/aufs/mnt"
+	rootURL := "/root/workplace_go/go-volumn-dev"
+	mntURL := "/root/workplace_go/go-volumn-dev/mnt"
 	defer aufs.DeleteWorkSpace(rootURL, mntURL)
 	if os.Args[0] == "/proc/self/exe" { // child process
 		childProcess()
